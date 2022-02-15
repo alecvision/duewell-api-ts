@@ -1,46 +1,26 @@
-import express from 'express';
-import multer from 'multer';
-import { body, validationResult } from 'express-validator'
-import os from 'node:os'
+import express from "express";
+import dotenv from 'dotenv';
+import receipts from './routes/receipts'
+import plaid from './routes/plaid'
 
-//TODO: use https (see: https://web.dev/how-to-use-local-https/)
-//TODO: sanitize and validate (see: https://express-validator.github.io/docs/check-api.html)
-//TODO: implement multer properly (see: https://github.com/expressjs/multer)
-//TODO: normalize port number (see: express-generator output)
-//TODO: implement .env
-//TODO: implement auth0
-//TODO: split code with express router
-/*TODO: implement endpoint security best practices (see:
-  https://blog.hubspot.com/website/api-security
-  https://www.f5.com/labs/articles/education/securing-apis--10-best-practices-for-keeping-your-data-and-infra)
-*/
-
-const storage = multer.diskStorage({
-  destination: os.tmpdir(),
-  filename: function(req, file, callback) {
-    console.log(file)
-    callback(null, file.originalname + Date.now().toLocaleString())
-  }
-})
+dotenv.config()
 
 const app = express();
-const port = 3333;
-const upload = multer({ storage: storage})
 
-app.all('/', (_req, res) => {
-  //respond to server status check
-  try {
-    res.sendStatus(200)
-  }
-  catch (err) {
-    res.status(500).send(err?.message || 'Internal Server Error')
-  }
-});
-
-app.post('/records', (req, res) => {
+function normalizePort(portNumber: string | number) {
+    console.log('portnum', portNumber)
+    if (typeof portNumber === 'number' && portNumber <= 65535) {
+        return portNumber
+    } else if (typeof portNumber === 'string' && !isNaN(parseInt(portNumber)) && parseInt(portNumber) <= 65535) {
+        return Number(portNumber)
+    } else throw new Error("Port number must be of type 'string' or 'number'.");
+}
   
-})
+const port = normalizePort(process.env.PORT_NUMBER)  
+
+app.use('/receipts', receipts)
+app.use('/plaid', plaid)
 
 app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
-});
+    return console.log(`Express is listening at http://localhost:${port}`);
+  });
