@@ -1,16 +1,17 @@
-const logReceipt = (receipt) => {
-    console.log("Merchant Name:", receipt.merchantName?.value);
+const logReceipt = async (receipt) => {
+    const { fields } = receipt
+    console.log("Merchant Name:", fields.merchantName?.value);
     console.log('Merchant Aliases:')
-    for (const alias of receipt.merchantAliases?.values ?? []) {
+    for (const alias of fields.merchantAliases?.values ?? []) {
         console.log("", alias.value)
     }
-    console.log("Merchant Address:", receipt.merchantAddress?.value);
-    console.log("Merchant Phone:", receipt.merchantPhoneNumber?.value);
-    console.log("Receipt Type:", receipt.receiptType?.value);
-    console.log("Transaction Currency:", receipt.currency?.value);
+    console.log("Merchant Address:", fields.merchantAddress?.value);
+    console.log("Merchant Phone:", fields.merchantPhoneNumber?.value);
+    console.log("Receipt Type:", fields.receiptType?.value);
+    console.log("Transaction Currency:", fields.currency?.value);
 
     console.log("Items:");
-    for (const { properties: item } of receipt.items?.values ?? []) {
+    for (const { properties: item } of fields.items?.values ?? []) {
         console.log("-", item.name?.value);
         console.log("  Description:", item.description?.value);
         console.log("  Date:", item.date?.value);
@@ -20,12 +21,12 @@ const logReceipt = (receipt) => {
         console.log("  Category:", item.category?.value);
     }
 
-    console.log("Transaction Date:", receipt.transactionDate?.value);
-    console.log("Transaction Time:", receipt.transactionTime?.value);
-    console.log("Subtotal:", receipt.subtotal?.value);
-    console.log("Tip:", receipt.tip?.value);
-    console.log("Tax:", receipt.tax?.value);
-    console.log("Total:", receipt.total?.value);
+    console.log("Transaction Date:", fields.transactionDate?.value);
+    console.log("Transaction Time:", fields.transactionTime?.value);
+    console.log("Subtotal:", fields.subtotal?.value);
+    console.log("Tip:", fields.tip?.value);
+    console.log("Tax:", fields.tax?.value);
+    console.log("Total:", fields.total?.value);
 }
 
 export default logReceipt
