@@ -3,10 +3,10 @@ import multer from 'multer';
 //import { body, validationResult } from 'express-validator'
 import os from 'node:os'
 import * as fs from 'fs'
-//import cors from 'cors'
 import { AzureKeyCredential, DocumentAnalysisClient, PrebuiltModels } from "@azure/ai-form-recognizer"
 //TODO: import db from '../lib/db'
 import logReceipt from '../devtools/logReceipt'
+import dotenv from 'dotenv'
 
 //TODO: use https (see: https://web.dev/how-to-use-local-https/)
 //TODO: sanitize and validate (see: https://express-validator.github.io/docs/check-api.html)
@@ -17,25 +17,22 @@ import logReceipt from '../devtools/logReceipt'
   https://www.f5.com/labs/articles/education/securing-apis--10-best-practices-for-keeping-your-data-and-infra)
 */
 
+dotenv.config()
+
 const router = express.Router()
 
 const storage = multer.diskStorage({
   destination: os.tmpdir(),
   filename: function(req, file, callback) {
-    console.log(file)
     callback(null, Date.now().toLocaleString() + "_" + file.originalname)
   }
 })
 
 const upload = multer({ storage: storage })
 
-//TODO configure cors
-//app.use(cors())
-
 router.use(upload.any())
 
 router.post('/', (req, res) => {
-  console.log('records req: ', req.files)
   const apiKey = process.env.MS_RECEIPT_PROCESSOR_KEY
   const endpoint = process.env.MS_RECEIPT_PROCESSOR_ENDPOINT
   
@@ -54,11 +51,11 @@ router.post('/', (req, res) => {
   }
 
   if (Array.isArray(req.files)) {
-    req.files.forEach(file => console.log(submitFile(file)))
+    req.files.forEach(file => submitFile(file))
     res.sendStatus(200) //FIXME
   }
   else if (req.files.file) {
-    req.files.file.forEach(file => console.log(submitFile(file)))
+    req.files.file.forEach(file => submitFile(file))
     res.sendStatus(200) //FIXME
   }
 })
