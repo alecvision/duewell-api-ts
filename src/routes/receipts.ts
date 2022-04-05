@@ -1,5 +1,5 @@
-import express from 'express';
-import multer from 'multer';
+import express from 'express'
+import multer from 'multer'
 //import { body, validationResult } from 'express-validator'
 import os from 'node:os'
 import * as fs from 'fs'
@@ -7,6 +7,7 @@ import { AzureKeyCredential, DocumentAnalysisClient, PrebuiltModels } from "@azu
 //TODO: import db from '../lib/db'
 import logReceipt from '../devtools/logReceipt'
 import dotenv from 'dotenv'
+import { appendQueryParams } from '../utils'
 
 //TODO: use https (see: https://web.dev/how-to-use-local-https/)
 //TODO: sanitize and validate (see: https://express-validator.github.io/docs/check-api.html)
@@ -34,12 +35,17 @@ router.use(upload.any())
 
 router.post('/', (req, res) => {
   const apiKey = process.env.MS_RECEIPT_PROCESSOR_KEY
-  const endpoint = process.env.MS_RECEIPT_PROCESSOR_ENDPOINT
+  const base = process.env.MS_RECEIPT_PROCESSOR_ENDPOINT
+  const params = {
+    "api-version": "2022-01-30-preview",
+    "stringIndexType": "textElements"
+  }
+  const endpoint = appendQueryParams(base, params)
   
   const submitFile = async (file: Express.Multer.File) => {
     const stream = fs.createReadStream(file.path)
     const client = new DocumentAnalysisClient(endpoint, new AzureKeyCredential(apiKey));
-    const poller = await client.beginAnalyzeDocuments(PrebuiltModels.Receipt, stream);
+    const poller = await client.beginAnalyzeDocument(PrebuiltModels.Receipt, stream);
     const { documents: [receipt] } = await poller.pollUntilDone();
 
     if (receipt) {
