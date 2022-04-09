@@ -60,7 +60,7 @@ router.post('/', (req, res) => {
     req.files.forEach(file => submitFile(file))
     res.sendStatus(200) //FIXME
   }
-  else if (req.files.file) {
+  else if (req?.files?.file) {
     req.files.file.forEach(file => submitFile(file))
     res.sendStatus(200) //FIXME
   }

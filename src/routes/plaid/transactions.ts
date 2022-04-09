@@ -1,13 +1,9 @@
 import { Router } from "express";
-import { auth } from "express-oauth2-jwt-bearer";
-import { db } from "../../db/";
+import { checkJwt } from "../../middleware";
+import { db } from "../../db";
 import { sanitizeTransactions } from "../../utils";
 
-const issuerBaseURL = process.env.AUTH0_ISSUER_BASE_URL;
-const audience = process.env.AUTH0_AUDIENCE;
-
 const router = Router();
-const checkJwt = auth({ issuerBaseURL, audience });
 
 router.post("/", checkJwt, async (req, res) => {
   console.log("protocol", req.protocol);
@@ -16,8 +12,9 @@ router.post("/", checkJwt, async (req, res) => {
   console.log("query", req.query);
   console.log("auth", req.auth);
   console.log("body", req.body);
+  
   const transactions = await db.transactions.read({
-    user_id: req.body.user.sub,
+    user_id: req.body.user_id,
   });
   
   if (transactions.length > 0) {

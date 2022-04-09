@@ -1,7 +1,7 @@
 export const validItemStatuses = ['good', 'bad']
 
 const safeAccountFields = [
-  "id",
+  "_id",
   "item_id",
   "user_id",
   "name",
@@ -18,7 +18,7 @@ const safeAccountFields = [
 ];
 
 const safeItemFields = [
-  "id",
+  "_id",
   "user_id",
   "plaid_institution_id",
   "status",
@@ -26,10 +26,10 @@ const safeItemFields = [
   "updated_at",
 ];
 
-const safeUserFields = ["id", "username", "created_at", "updated_at"];
+const safeUserFields = ["_id", "username", "created_at", "updated_at"];
 
 const safeTransactionFields = [
-  "id",
+  "_id",
   "account_id",
   "item_id",
   "user_id",

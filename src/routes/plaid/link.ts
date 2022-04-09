@@ -12,7 +12,7 @@ router.post('/', function (request, response, next) {
         let access_token = null;
         let products = PLAID_PRODUCTS;
         
-        if (item_id != null) {
+        if (item_id) {
             // for the link update mode, include access token and an empty products array
             const itemIdResponse = await db.plaidItems.read({item_id});
             access_token = itemIdResponse.plaid_access_token;

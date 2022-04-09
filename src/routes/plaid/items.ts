@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { db } from "../../db";
+import { checkJwt } from "../../middleware";
+
 import {
   sanitizeItems,
   isValidItemStatus,
@@ -10,11 +12,12 @@ import type { PlaidItemModel } from "../../db/models";
 
 const router = Router();
 
-router.post("/", function (request, response, next) {
-  Promise.resolve(request.body).then(
-    async ({ institution_id, user_id, public_token }) => {
+router.post("/", checkJwt, function (request, response, next) {
+  Promise.resolve().then(
+    async () => {
+      const { institution_id, user_id, public_token } = request.body
       try {
-        const existingItem: PlaidItemModel = await db.plaidItems.read({
+        const existingItem: PlaidItemModel | null = await db.plaidItems.read({
           institution_id,
           user_id,
         });
@@ -26,16 +29,26 @@ router.post("/", function (request, response, next) {
           return;
         }
 
-        const res = await client.itemPublicTokenExchange({
-          public_token,
+
+        const plaidResponse = await client.itemPublicTokenExchange({
+          public_token
         });
 
-        const new_id = await db.plaidItems.create({
-          ...res.data,
+        if (!plaidResponse.data) {
+          response.status(plaidResponse.status).json(plaidResponse)//XXX
+        }
+        
+        const { acknowledged, insertedId } = await db.plaidItems.create({
+          ...plaidResponse.data,
           institution_id,
           user_id,
         });
-        const newItem = await db.plaidItems.read({ _id: new_id });
+
+        if (!acknowledged) {
+          response.status(500)
+        }
+
+        const newItem = await db.plaidItems.read({ _id: insertedId });
 
         response.status(200).json(sanitizeItems(newItem));
       } catch (err) {
@@ -86,9 +99,10 @@ router.delete("/:item_id", (req, res) => {
     let status_code: number;
     const { item_id } = params;
     try {
-      const { plaid_access_token: accessToken } = await db.plaidItems.read({item_id});
+      const item = await db.plaidItems.read({item_id});
+      const accessToken = item?.access_token;
       const response = await client.itemRemove({
-        access_token: accessToken,
+        access_token: accessToken || "",
       });
       removed = response.data.removed;
       status_code = response.data.status_code;
