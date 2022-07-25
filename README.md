@@ -1,4 +1,4 @@
 # duewell-api-ts
 
-### to start the server: npm run start
-### to run eslint: npm run lint
+### Server code for [alecvision/duewell-ts](https://github.com/alecvision/duewell-ts)
+See that repo's README.md for details.
